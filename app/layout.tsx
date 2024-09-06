@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Prerouted Generator",
@@ -15,7 +16,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="flex justify-center">
-          <div className="flex flex-col w-full max-w-2xl mt-8">{children}</div>
+          <div className="flex flex-col w-full max-w-2xl my-10">{children}</div>
+          <Toaster />
         </div>
       </body>
     </html>

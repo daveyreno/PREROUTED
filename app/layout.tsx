@@ -15,7 +15,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="flex justify-center">
-          <div className="flex flex-col w-full max-w-2xl">{children}</div>
+          <div className="flex flex-col w-full max-w-2xl mt-8">{children}</div>
         </div>
       </body>
     </html>

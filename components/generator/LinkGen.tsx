@@ -15,6 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { aussieLinks, lendiLinks } from "./Links";
 
 const formSchema = z.object({
   uuid: z.string().uuid({
@@ -33,27 +34,15 @@ export function LinkGen({ brand }: LinkGenProps) {
     resolver: zodResolver(formSchema),
   });
 
-  const [links, setLinks] = useState<string[]>([]);
+  const [links, setLinks] = useState<{ title: string; url: string }[]>([]);
 
   const onSubmit: SubmitHandler<FormSchema> = (data) => {
-    const baseUrls =
-      brand === "aussie"
-        ? [
-            "https://www.aussie.com.au/",
-            "https://www.aussie.com.au/tools/free-credit-score-check/",
-            "https://www.aussie.com.au/calculators/borrowing-power/",
-            "https://www.aussie.com.au/property-report/",
-          ]
-        : [
-            "https://www.lendi.com.au/",
-            "https://www.lendi.com.au/tools/free-credit-score-check/",
-            "https://www.lendi.com.au/calculators/borrowing-power/",
-            "https://www.lendi.com.au/property-report/",
-          ];
+    const baseUrls = brand === "aussie" ? aussieLinks : lendiLinks;
 
-    const generatedLinks = baseUrls.map(
-      (baseUrl) => `${baseUrl}?brokerid=${data.uuid}`
-    );
+    const generatedLinks = baseUrls.map((baseUrl) => ({
+      title: baseUrl.title,
+      url: `${baseUrl.url}?brokerid=${data.uuid}`,
+    }));
     setLinks(generatedLinks);
   };
 
@@ -62,7 +51,7 @@ export function LinkGen({ brand }: LinkGenProps) {
   };
 
   const copyAllToClipboard = () => {
-    const allLinks = links.join("\n");
+    const allLinks = links.map((link) => link.url).join("\n");
     navigator.clipboard.writeText(allLinks);
   };
 
@@ -88,15 +77,20 @@ export function LinkGen({ brand }: LinkGenProps) {
       </Form>
       {links.length > 0 && (
         <div className="mt-4">
-          <p>Generated Links:</p>
+          <p className="text-xl tracking-tight font-semibold mb-4">
+            Generated Links:
+          </p>
           <div className="">
             {links.map((link, index) => (
               <div
                 key={index}
-                className="border-t border-x rounded-t flex justify-between items-center p-3"
+                className="border-t border-x first:rounded-t-lg flex justify-between items-center p-3"
               >
-                <div className="">{link}</div>
-                <Button onClick={() => copyToClipboard(link)}>Copy</Button>
+                <div className="h-16">
+                  <p className="font-semibold">{link.title}</p>
+                  <p className="text-sm">{link.url}</p>
+                </div>
+                <Button onClick={() => copyToClipboard(link.url)}>Copy</Button>
               </div>
             ))}
             <div className="border rounded-b flex justify-between items-center p-3">

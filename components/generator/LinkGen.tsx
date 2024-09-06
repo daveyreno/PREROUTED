@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 
@@ -9,14 +9,12 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 
 const formSchema = z.object({
   uuid: z.string().uuid({
@@ -24,14 +22,20 @@ const formSchema = z.object({
   }),
 });
 
-export function LinkGen({ brand }) {
-  const form = useForm({
+type FormSchema = z.infer<typeof formSchema>;
+
+interface LinkGenProps {
+  brand: "aussie" | "lendi";
+}
+
+export function LinkGen({ brand }: LinkGenProps) {
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
   });
 
-  const [links, setLinks] = useState([]);
+  const [links, setLinks] = useState<string[]>([]);
 
-  const onSubmit = (data) => {
+  const onSubmit: SubmitHandler<FormSchema> = (data) => {
     const baseUrls =
       brand === "aussie"
         ? [
@@ -53,7 +57,7 @@ export function LinkGen({ brand }) {
     setLinks(generatedLinks);
   };
 
-  const copyToClipboard = (link) => {
+  const copyToClipboard = (link: string) => {
     navigator.clipboard.writeText(link);
   };
 

@@ -49,7 +49,9 @@ export function LinkGen({ brand }: LinkGenProps) {
 
     const generatedLinks = baseUrls.map((baseUrl) => ({
       title: baseUrl.title,
-      url: `${baseUrl.url}?${idType}=${data.uuid}&utm_content=pre_routed_leads`,
+      url: baseUrl.isAppLink 
+        ? `${baseUrl.url}/?${idType}=${data.uuid}&utm_source=app-prl&utm_medium=qrcode&utm_campaign=app-prl-flow`
+        : `${baseUrl.url}?${idType}=${data.uuid}&utm_content=pre_routed_leads`,
     }));
     setLinks(generatedLinks);
     toast("Links created!");
@@ -132,11 +134,11 @@ export function LinkGen({ brand }: LinkGenProps) {
             {links.map((link, index) => (
               <div
                 key={index}
-                className="border-t border-x first:rounded-t-lg flex justify-between items-center p-3"
+                className="border-t border-x first:rounded-t-lg flex justify-between items-start p-3"
               >
-                <div className="h-16">
+                <div className="flex-1 break-words pr-4">
                   <p className="font-semibold">{link.title}</p>
-                  <p className="text-sm text-slate-500">{link.url}</p>
+                  <p className="text-sm text-slate-500 break-all">{link.url}</p>
                 </div>
                 <Button onClick={() => copyToClipboard(link)}>Copy</Button>
               </div>

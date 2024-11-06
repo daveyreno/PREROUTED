@@ -60,6 +60,11 @@ export const aussieLinks = [
     title: "Fixed rate expiry calculator",
     url: "https://www.aussie.com.au/calculators/fixed-rate-expiry/",
   },
+  {
+    title: "Mobile App Connect",
+    url: "https://www.aussie.com.au/mobile-app/connect-with-me",
+    isAppLink: true
+  },
 ];
 
 export const lendiLinks = [

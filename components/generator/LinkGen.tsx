@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { aussieLinks, lendiLinks } from "./Links";
+import { aussieLinks, lendiLinks, LinkType } from "./Links";
 import { toast } from "sonner";
 
 const formSchema = z.object({
@@ -44,10 +44,10 @@ export function LinkGen({ brand }: LinkGenProps) {
   const [links, setLinks] = useState<{ title: string; url: string }[]>([]);
 
   const onSubmit: SubmitHandler<FormSchema> = (data) => {
-    const baseUrls = brand === "aussie" ? aussieLinks : lendiLinks;
+    const baseUrls: LinkType[] = brand === "aussie" ? aussieLinks : lendiLinks;
     const idType = data.type === "broker" ? "brokerid" : "storeid";
 
-    const generatedLinks = baseUrls.map((baseUrl) => ({
+    const generatedLinks = baseUrls.map((baseUrl: LinkType) => ({
       title: baseUrl.title,
       url: baseUrl.isAppLink 
         ? `${baseUrl.url}/?${idType}=${data.uuid}&utm_source=app-prl&utm_medium=qrcode&utm_campaign=app-prl-flow`

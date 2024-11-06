@@ -1,6 +1,13 @@
 // links.ts
 
-export const aussieLinks = [
+// First, export the interface so it can be imported
+export interface LinkType {
+  title: string;
+  url: string;
+  isAppLink?: boolean;
+}
+
+export const aussieLinks: LinkType[] = [
   { title: "Homepage", url: "https://aussie.com.au/" },
   { title: "Sign Up", url: "https://www.aussie.com.au/sign-in/sign-up" },
   { title: "Sign In", url: "https://www.aussie.com.au/sign-in/" },
@@ -67,7 +74,7 @@ export const aussieLinks = [
   },
 ];
 
-export const lendiLinks = [
+export const lendiLinks: LinkType[] = [
   { title: "Homepage", url: "https://www.lendi.com.au/" },
   { title: "Sign Up", url: "https://www.lendi.com.au/sign-in/sign-up" },
   { title: "Sign In", url: "https://www.lendi.com.au/sign-in/" },

@@ -81,14 +81,18 @@ export function LinkGen({ brand }: LinkGenProps) {
       const svgData = new XMLSerializer().serializeToString(svg);
       const img = new Image();
       img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
+        canvas.width = 2000;
+        canvas.height = 2000;
         const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0);
+        if (ctx) {
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        }
         
         const a = document.createElement("a");
         a.download = `${link.title}-qr.png`;
-        a.href = canvas.toDataURL("image/png");
+        a.href = canvas.toDataURL("image/png", 1.0);
         a.click();
       };
       img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
@@ -184,14 +188,42 @@ export function LinkGen({ brand }: LinkGenProps) {
                         size={200}
                         level="H"
                         includeMargin
+                        style={{
+                          width: '200px',
+                          height: '200px',
+                        }}
+                        viewBox="0 0 2000 2000"
                       />
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => downloadQR(link)}
-                      >
-                        Download QR
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => downloadQR(link)}
+                        >
+                          Download High-Res PNG
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            const svg = document.querySelector(`#qr-${link.title.replace(/\s+/g, '-')}`) as SVGElement;
+                            if (svg) {
+                              const svgData = new XMLSerializer().serializeToString(svg);
+                              const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                              const svgUrl = URL.createObjectURL(svgBlob);
+                              const downloadLink = document.createElement('a');
+                              downloadLink.href = svgUrl;
+                              downloadLink.download = `${link.title}-qr.svg`;
+                              document.body.appendChild(downloadLink);
+                              downloadLink.click();
+                              document.body.removeChild(downloadLink);
+                              URL.revokeObjectURL(svgUrl);
+                            }
+                          }}
+                        >
+                          Download SVG
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}

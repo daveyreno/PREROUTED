@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
+import { QRCodeSVG } from 'qrcode.react';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,7 @@ export function LinkGen({ brand }: LinkGenProps) {
   });
 
   const [links, setLinks] = useState<{ title: string; url: string }[]>([]);
+  const [showQR, setShowQR] = useState<number | null>(null);
 
   const onSubmit: SubmitHandler<FormSchema> = (data) => {
     const baseUrls: LinkType[] = brand === "aussie" ? aussieLinks : lendiLinks;
@@ -69,6 +71,28 @@ export function LinkGen({ brand }: LinkGenProps) {
       .join("\n\n");
     navigator.clipboard.writeText(allLinks);
     toast("Copied all to clipboard");
+  };
+
+  const downloadQR = (link: { title: string; url: string }) => {
+    const canvas = document.createElement("canvas");
+    const svg = document.querySelector(`#qr-${link.title.replace(/\s+/g, '-')}`) as SVGElement;
+    
+    if (svg) {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+        
+        const a = document.createElement("a");
+        a.download = `${link.title}-qr.png`;
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+      };
+      img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+    }
   };
 
   return (
@@ -134,13 +158,43 @@ export function LinkGen({ brand }: LinkGenProps) {
             {links.map((link, index) => (
               <div
                 key={index}
-                className="border-t border-x first:rounded-t-lg flex justify-between items-start p-3"
+                className="border-t border-x first:rounded-t-lg"
               >
-                <div className="flex-1 break-words pr-4">
-                  <p className="font-semibold">{link.title}</p>
-                  <p className="text-sm text-slate-500 break-all">{link.url}</p>
+                <div className="flex justify-between items-start p-3">
+                  <div className="flex-1 break-words pr-4">
+                    <p className="font-semibold">{link.title}</p>
+                    <p className="text-sm text-slate-500 break-all">{link.url}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowQR(showQR === index ? null : index)}
+                    >
+                      {showQR === index ? 'Hide QR' : 'Show QR'}
+                    </Button>
+                    <Button onClick={() => copyToClipboard(link)}>Copy</Button>
+                  </div>
                 </div>
-                <Button onClick={() => copyToClipboard(link)}>Copy</Button>
+                {showQR === index && (
+                  <div className="p-4 border-t bg-white">
+                    <div className="flex flex-col items-center gap-2">
+                      <QRCodeSVG 
+                        id={`qr-${link.title.replace(/\s+/g, '-')}`}
+                        value={link.url}
+                        size={200}
+                        level="H"
+                        includeMargin
+                      />
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => downloadQR(link)}
+                      >
+                        Download QR
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
             <div className="border rounded-b flex justify-between items-center p-3">

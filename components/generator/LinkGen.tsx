@@ -87,7 +87,9 @@ export function LinkGen({ brand }: LinkGenProps) {
         if (ctx) {
           ctx.fillStyle = 'white';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const padding = canvas.width * 0.1;
+          const size = canvas.width - (padding * 2);
+          ctx.drawImage(img, padding, padding, size, size);
         }
         
         const a = document.createElement("a");
@@ -182,18 +184,20 @@ export function LinkGen({ brand }: LinkGenProps) {
                 {showQR === index && (
                   <div className="p-4 border-t bg-white">
                     <div className="flex flex-col items-center gap-2">
-                      <QRCodeSVG 
-                        id={`qr-${link.title.replace(/\s+/g, '-')}`}
-                        value={link.url}
-                        size={200}
-                        level="H"
-                        includeMargin
-                        style={{
-                          width: '200px',
-                          height: '200px',
-                        }}
-                        viewBox="0 0 2000 2000"
-                      />
+                      <div className="bg-white p-4 rounded">
+                        <QRCodeSVG 
+                          id={`qr-${link.title.replace(/\s+/g, '-')}`}
+                          value={link.url}
+                          size={200}
+                          level="H"
+                          includeMargin
+                          style={{
+                            display: 'block',
+                            width: '200px',
+                            height: '200px',
+                          }}
+                        />
+                      </div>
                       <div className="flex gap-2">
                         <Button 
                           variant="outline" 
@@ -208,9 +212,30 @@ export function LinkGen({ brand }: LinkGenProps) {
                           onClick={() => {
                             const svg = document.querySelector(`#qr-${link.title.replace(/\s+/g, '-')}`) as SVGElement;
                             if (svg) {
-                              const svgData = new XMLSerializer().serializeToString(svg);
+                              // Create new SVG element
+                              const svgWrapper = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                              svgWrapper.setAttribute('width', '2000');
+                              svgWrapper.setAttribute('height', '2000');
+                              svgWrapper.setAttribute('viewBox', '0 0 2000 2000');
+                              
+                              // Add white background
+                              const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                              background.setAttribute('width', '2000');
+                              background.setAttribute('height', '2000');
+                              background.setAttribute('fill', 'white');
+                              svgWrapper.appendChild(background);
+                              
+                              // Get the QR code content and scale it
+                              const qrContent = svg.cloneNode(true) as SVGElement;
+                              qrContent.setAttribute('width', '2000');
+                              qrContent.setAttribute('height', '2000');
+                              qrContent.setAttribute('transform', 'scale(10)');
+                              svgWrapper.appendChild(qrContent);
+                              
+                              const svgData = new XMLSerializer().serializeToString(svgWrapper);
                               const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
                               const svgUrl = URL.createObjectURL(svgBlob);
+                              
                               const downloadLink = document.createElement('a');
                               downloadLink.href = svgUrl;
                               downloadLink.download = `${link.title}-qr.svg`;
